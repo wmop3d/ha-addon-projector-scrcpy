@@ -7,17 +7,18 @@ ENV LANG=C.UTF-8 \
 
 # Runtime deps: adb (android-tools) talks to the projector and serves the
 # local ADB server ws-scrcpy's tracker connects to. bash + jq for run.sh.
-RUN apk add --no-cache android-tools bash jq
+# nodejs comes from apk too: the build must not depend on the base image
+# shipping node/npm (v0.1.0 failed on exactly that — npm: not found).
+RUN apk add --no-cache android-tools bash jq nodejs
 
 ARG WSSCRCPY_REPOSITORY=https://github.com/Mel0nFish/ws-scrcpy-enhanced.git
 ARG WSSCRCPY_COMMIT=32e58f9aa330bb30454d9fe31251c550008fc373
 
 WORKDIR /opt
-RUN apk add --no-cache --virtual .build-deps git \
+RUN apk add --no-cache --virtual .build-deps git npm \
     && git clone ${WSSCRCPY_REPOSITORY} ws-scrcpy \
     && cd ws-scrcpy \
-    && git checkout ${WSSCRCPY_COMMIT} \
-    && apk del .build-deps
+    && git checkout ${WSSCRCPY_COMMIT}
 
 # Feature trims (no remote shell / devtools / file listing in the add-on).
 COPY build.config.override.json /opt/ws-scrcpy/build.config.override.json
@@ -34,7 +35,8 @@ RUN sed -i "/WebRtcScrcpyProxy.*await import/d; /mwList.push(WebRtcScrcpyProxy)/
     && npm run dist \
     && npm prune --omit=dev \
     && cp -a node_modules dist/node_modules \
-    && rm -rf /root/.npm .git
+    && rm -rf /root/.npm .git \
+    && apk del .build-deps
 
 COPY ws-scrcpy-config.yaml /opt/ws-scrcpy/config.yaml
 COPY run.sh /run.sh
