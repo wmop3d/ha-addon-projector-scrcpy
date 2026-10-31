@@ -1,0 +1,7 @@
+# ws-scrcpy runtime configuration (read via WS_SCRCPY_CONFIG).
+runGoogTracker: true
+announceGoogTracker: true
+runApplTracker: false
+server:
+  - secure: false
+    port: 8000

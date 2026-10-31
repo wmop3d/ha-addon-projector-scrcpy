@@ -1,0 +1,28 @@
+name: Projector scrcpy
+version: 0.1.0
+slug: projector_scrcpy
+description: >-
+  Live screen stream and control of an Android TV projector in the browser
+  (ws-scrcpy over ADB). For menu navigation from a dashboard. DRM video
+  (Netflix playback) renders black; menus mirror fine.
+url: https://github.com/wmop3d/ha-addon-projector-scrcpy
+arch:
+  - aarch64
+  - amd64
+  - armv7
+startup: application
+boot: auto
+init: false
+ingress: true
+ingress_port: 8000
+panel_icon: mdi:projector-screen
+panel_title: Projector
+watchdog: "http://[HOST]:[PORT:8000]/"
+ports:
+  8000/tcp: 8000
+ports_description:
+  8000/tcp: ws-scrcpy web interface (direct LAN access)
+options:
+  device_address: "192.168.50.23:5555"
+schema:
+  device_address: str
